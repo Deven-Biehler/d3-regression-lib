@@ -1,0 +1,26 @@
+window.MyRegression = {
+  linear: function(data, xCol, yCol) {
+    const xValues = data.map(d => d[xCol]);
+    const yValues = data.map(d => d[yCol]);
+    
+    const xMean = xValues.reduce((a, b) => a + b) / xValues.length;
+    const yMean = yValues.reduce((a, b) => a + b) / yValues.length;
+    
+    const slope = data.reduce((sum, d) => sum + (d[xCol] - xMean) * (d[yCol] - yMean), 0) /
+                  data.reduce((sum, d) => sum + Math.pow(d[xCol] - xMean, 2), 0);
+    const intercept = yMean - slope * xMean;
+    
+    const xExtent = [Math.min(...xValues), Math.max(...xValues)];
+    const line = [
+      { x: xExtent[0], y: slope * xExtent[0] + intercept },
+      { x: xExtent[1], y: slope * xExtent[1] + intercept }
+    ];
+    
+    const predicted = data.map(d => slope * d[xCol] + intercept);
+    const ssRes = predicted.reduce((sum, p, i) => sum + Math.pow(yValues[i] - p, 2), 0);
+    const ssTot = yValues.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+    const rSquared = 1 - (ssRes / ssTot);
+    
+    return { line, rSquared };
+  }
+};
